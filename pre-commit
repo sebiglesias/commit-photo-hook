@@ -1,0 +1,33 @@
+#!/bin/bash
+
+PHOTO_DIR="$HOME/commit_photos"
+mkdir -p "$PHOTO_DIR"
+
+TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
+REPO_NAME=$(basename "$(git rev-parse --show-toplevel)")
+PHOTO_PATH="$PHOTO_DIR/${REPO_NAME}_${TIMESTAMP}.jpg"
+
+if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    if ! command -v fswebcam &> /dev/null; then
+        echo "Install fswebcam: sudo apt install fswebcam"
+        exit 0
+    fi
+    fswebcam -r 1280x720 --no-banner "$PHOTO_PATH"
+elif [[ "$OSTYPE" == "darwin"* ]]; then
+    if ! command -v imagesnap &> /dev/null; then
+        echo "Install imagesnap: brew install imagesnap"
+        exit 0
+    fi
+    imagesnap -w 1 "$PHOTO_PATH"
+else
+    echo "System $OSTYPE is not supported"
+    exit 0
+fi
+
+if [ -f "$PHOTO_PATH" ]; then
+    echo "📸 Commit photo stored in: $PHOTO_PATH"
+else
+    echo "⚠️ Could not take photo (continuing with commit)"
+fi
+
+exit 0
